@@ -175,9 +175,8 @@ app.post('/registrarcategoria', async(req, res) => {
         console.error(error);
         return res.status(500).json({ error: 'Error en el servidor' });
     }
-
-
 });
+
 app.get('/categoria/:idcategoria', async(req, res) => {
     try {
         const productId = req.params.idcategoria;
@@ -227,7 +226,18 @@ app.delete('/eliminarcategoria/:idcategoria', async(req, res) => {
 //**PRODUCTOS ********************/
 app.get('/listaproductos', async(req, res) => {
     try {
-        const getUsersQuery = 'SELECT * FROM tb_productos';
+        const getUsersQuery = `SELECT
+        p.idproducto,
+            p.nombre,
+            p.descripcion,
+            c.descripcion AS categoria,
+            p.precio,
+            p.stock,
+            p.imagen
+        FROM
+        public.tb_productos p
+        JOIN
+        public.tb_categorias c ON p.idcategoria = c.idcategoria`;
         const users = await pool.query(getUsersQuery);
 
         return res.status(200).json(users.rows);
@@ -308,23 +318,22 @@ app.delete('/eliminarproducto/:idproducto', async(req, res) => {
 });
 
 //**COMENTARIOS */
-app.get('/listamascomentarios', async(req, res) => {
+app.get('/listacomentarios', async(req, res) => {
     try {
         const getMascotasQuery = `
-        SELECT
-        m.titulo,
-        m.comentario,
-        m.calificacion,
-        m.fecha,
-        CONCAT(u.nombres, ' ', u.apellidos) AS nombre_completo,
-        p.nombre
-    FROM
-        tb_comentarios m
-    JOIN
-        tb_usuarios u ON m.idusuarios = u.idusuarios   
-        JOIN
-        tb_productos p ON m.idproducto = p.idproducto    
-        `;
+                SELECT
+                m.titulo,
+                    m.comentario,
+                    m.calificacion,
+                    m.fecha,
+                    CONCAT(u.nombres, ' ', u.apellidos) AS nombre_completo,
+                    p.nombre
+                FROM
+                tb_comentarios m
+                JOIN
+                tb_usuarios u ON m.idusuarios = u.idusuarios
+                JOIN
+                tb_productos p ON m.idproducto = p.idproducto `;
 
         const mascotas = await pool.query(getMascotasQuery);
 
