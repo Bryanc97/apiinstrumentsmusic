@@ -158,7 +158,7 @@ app.post('/registrarcategoria', async(req, res) => {
     try {
         const { descripcion, estado } = req.body;
 
-        const userExistQuery = 'SELECT * FROM tb_productos WHERE descripcion = $1';
+        const userExistQuery = 'SELECT * FROM tb_categorias WHERE descripcion = $1';
         const userExistValues = [descripcion];
         const userExistResult = await pool.query(userExistQuery, userExistValues);
 
@@ -166,7 +166,7 @@ app.post('/registrarcategoria', async(req, res) => {
             return res.status(400).json({ error: 'El producto ya esta registrado' });
         }
 
-        const insertUserQuery = 'INSERT INTO tb_productos (descripcion, estado) VALUES ($1, $2)';
+        const insertUserQuery = 'INSERT INTO tb_categorias (descripcion, estado) VALUES ($1, $2)';
         const insertUserValues = [descripcion, estado];
         await pool.query(insertUserQuery, insertUserValues);
 
