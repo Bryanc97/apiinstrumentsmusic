@@ -293,7 +293,7 @@ app.put('/editarproducto/:idproducto', async(req, res) => {
         const { idcategoria, nombre, descripcion, precio, stock, imagen } = req.body;
 
         const updateProductQuery = 'UPDATE tb_productos SET idcategoria = $1, nombre = $2, descripcion = $3, precio = $4, stock = $5, imagen =$6 WHERE idproducto = $5';
-        const updateProductValues = [nidcategoria, nombre, descripcion, precio, stock, imagen, productId];
+        const updateProductValues = [idcategoria, nombre, descripcion, precio, stock, imagen, productId];
         await pool.query(updateProductQuery, updateProductValues);
 
         return res.status(200).json({ message: 'Producto actualizado exitosamente' });
