@@ -142,6 +142,19 @@ app.post('/obtenerIdUsuario', async(req, res) => {
 app.listen(port, () => {
     console.log(`Servidor en ejecución en http://localhost:${port}`);
 });
+app.delete('/eliminarusuario/:idusuarios', async(req, res) => {
+    try {
+        const productId = req.params.idusuarios;
+
+        const deleteProductQuery = 'DELETE FROM tb_usuarios WHERE idusuarios = $1';
+        await pool.query(deleteProductQuery, [productId]);
+
+        return res.status(200).json({ message: 'Usuario eliminado exitosamente' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
 //**CATEGORIAS ********************/
 app.get('/listacategorias', async(req, res) => {
     try {
