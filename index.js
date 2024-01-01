@@ -331,7 +331,17 @@ app.delete('/eliminarproducto/:idproducto', async(req, res) => {
 });
 
 ////ESTEBAN API
+app.get('/usuarios2', async(req, res) => {
+    try {
+        const getUsersQuery = 'SELECT * FROM tb_usuarios2';
+        const users = await pool.query(getUsersQuery);
 
+        return res.status(200).json(users.rows);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
 app.post('/login2', async(req, res) => {
     try {
         const { email, password } = req.body;
