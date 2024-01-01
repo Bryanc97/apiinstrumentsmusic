@@ -7,12 +7,8 @@ config()
 
 const app = express();
 const port = process.env.PORT || 3000;
-const allowedOrigin = 'https://deep-set-bus.000webhostapp.com';
-const allowedOrigin2 = 'https://off-street-route.000webhostapp.com';
-
+const allowedOrigin = ['https://deep-set-bus.000webhostapp.com', 'https://off-street-route.000webhostapp.com'];
 app.use(cors({ origin: allowedOrigin }));
-app.use(cors({ origin: allowedOrigin2 }));
-
 
 app.use(express.json());
 
