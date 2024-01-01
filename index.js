@@ -449,3 +449,95 @@ app.delete('/eliminarusuario2/:idusuarios', async(req, res) => {
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 });
+//PROPIEDADES
+app.get('/listapropiedades', async(req, res) => {
+    try {
+        const getUsersQuery = `SELECT
+        p.idpropiedad,
+        c.apellidos AS apellidos,
+            p.tipo,
+            p.titulo,
+            p.mtotales,
+            p.mcubiertos,
+            p.habitaciones,
+            p.cochera,
+            p.banos,
+            p.descripcion,
+            p.direccion,
+            p.telefono,
+            p.precio,
+            p.provincia,
+            p.imagenes
+        FROM
+        public.tb_propiedades p
+        JOIN
+        public.tb_usuarios2 c ON p.idusuarios = c.idusuarios`;
+        const users = await pool.query(getUsersQuery);
+
+        return res.status(200).json(users.rows);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+app.post('/registrarpropiedades', async(req, res) => {
+    try {
+        const { idusuarios, tipo, titulo, mtotales, mcubiertos, habitaciones, cochera, banos, descripcion, direccion, telefono, imagenes, precio, provincia } = req.body;
+
+        const insertUserQuery = 'INSERT INTO tb_propiedades (idusuarios,tipo, titulo, mtotales, mcubiertos, habitaciones, cochera,banos,descripcion,direccion, telefono,imagenes, precio, provincia) VALUES ($1, $2, $3, $4, $5, $6, $7,$8,$9,$10,$11,$12, $13, $14)';
+        const insertUserValues = [idusuarios, tipo, titulo, mtotales, mcubiertos, habitaciones, cochera, banos, descripcion, direccion, telefono, imagenes, precio, provincia];
+        await pool.query(insertUserQuery, insertUserValues);
+
+        return res.status(201).json({ message: 'Registrado exitosamente' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+app.get('/propiedades/:idusuarios', async(req, res) => {
+    try {
+        const productId = req.params.idusuarios;
+        const getProductQuery = 'SELECT * FROM tb_propiedades WHERE idusuarios = $1';
+        const product = await pool.query(getProductQuery, [productId]);
+
+        if (product.rowCount === 0) {
+            return res.status(404).json({ error: 'propiedad no encontrada' });
+        }
+        return res.status(200).json(product.rows[0]);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+app.put('/editarpropiedad/:idpropiedad', async(req, res) => {
+    try {
+        const productId = req.params.idpropiedad;
+        const { tipo, titulo, mtotales, mcubiertos, habitaciones, cochera, banos, descripcion, direccion, telefono, imagenes, precio, provincia } = req.body;
+
+        const updateProductQuery = `UPDATE tb_propiedades 
+        SET tipo = $1, titulo = $2, mtotales = $3, mcubiertos = $4, habitaciones = $5,
+            cochera = $6, banos = $7, descripcion = $8, direccion = $9, telefono = $10,
+            imagenes = $11, precio = $12, provincia = $13
+        WHERE idpropiedad = $14`;
+        const updateProductValues = [tipo, titulo, mtotales, mcubiertos, habitaciones, cochera, banos, descripcion, direccion, telefono, imagenes, precio, provincia, idpropiedad];
+        await pool.query(updateProductQuery, updateProductValues);
+
+        return res.status(200).json({ message: 'propiedad actualizada exitosamente' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+app.delete('/eliminarpropiedad/:idpropiedad', async(req, res) => {
+    try {
+        const productId = req.params.idpropiedad;
+
+        const deleteProductQuery = 'DELETE FROM tb_propiedades WHERE idpropiedad = $1';
+        await pool.query(deleteProductQuery, [productId]);
+
+        return res.status(200).json({ message: 'Propiedad eliminada exitosamente' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
