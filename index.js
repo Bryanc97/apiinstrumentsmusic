@@ -330,73 +330,119 @@ app.delete('/eliminarproducto/:idproducto', async(req, res) => {
     }
 });
 
-//**COMENTARIOS */
-app.get('/listacomentarios', async(req, res) => {
+////ESTEBAN API
+
+app.post('/login2', async(req, res) => {
     try {
-        const getMascotasQuery = `
-                SELECT
-                m.titulo,
-                    m.comentario,
-                    m.calificacion,
-                    m.fecha,
-                    CONCAT(u.nombres, ' ', u.apellidos) AS nombre_completo,
-                    p.nombre
-                FROM
-                tb_comentarios m
-                JOIN
-                tb_usuarios u ON m.idusuarios = u.idusuarios
-                JOIN
-                tb_productos p ON m.idproducto = p.idproducto `;
+        const { email, password } = req.body;
 
-        const mascotas = await pool.query(getMascotasQuery);
+        const loginQuery = 'SELECT * FROM tb_usuarios2 WHERE email = $1 AND password = $2';
+        const loginValues = [email, password];
+        const loginResult = await pool.query(loginQuery, loginValues);
 
-        return res.status(200).json(mascotas.rows);
+        if (loginResult.rowCount === 1) {
+            // Usuario autenticado con éxito
+            const user = loginResult.rows[0];
+            const { password, ...userData } = user; // Excluye la contraseña de los datos del usuario
+            return res.status(200).json({ message: 'Inicio de sesión exitoso', user: userData, userId: user.id });
+        } else {
+            return res.status(401).json({ error: 'Credenciales inválidas' });
+        }
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 });
-app.post('/registrarcomentarios', async(req, res) => {
+app.get('/perfiluser2/:idusuarios', async(req, res) => {
+    const idusuario = req.params.idusuarios;
+
     try {
-        const { idusuarios, idproducto, titulo, comentario, calificacion } = req.body;
+        const getPropertiesQuery = 'SELECT * FROM tb_usuarios2 WHERE idusuarios = $1';
+        const properties = await pool.query(getPropertiesQuery, [idusuario]);
 
-        const insertMascotaQuery = 'INSERT INTO tb_comentarios (idusuarios, idproducto, titulo, comentario, calificacion) VALUES ($1, $2, $3, $4, $5)';
-        const insertMascotaValues = [idusuarios, idproducto, titulo, comentario, calificacion];
-        await pool.query(insertMascotaQuery, insertMascotaValues);
-
-        return res.status(201).json({ message: 'Mascota registrada exitosamente' });
+        return res.status(200).json(properties.rows);
     } catch (error) {
-        console.error(error);
+        console.error('Error retrieving properties:', error);
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 });
-app.get('/comentarios/:idcomentario', async(req, res) => {
+app.post('/register2', async(req, res) => {
     try {
-        const productId = req.params.idcomentario;
-        const getProductQuery = 'SELECT * FROM tb_comentarios WHERE idcomentario = $1';
-        const product = await pool.query(getProductQuery, [productId]);
+        const { cedula, nombres, apellidos, telefono, email, password, tipo } = req.body;
 
-        if (product.rowCount === 0) {
-            return res.status(404).json({ error: 'Producto no encontrado' });
+        const userExistQuery = 'SELECT * FROM tb_usuarios2 WHERE email = $1 OR cedula = $2';
+        const userExistValues = [email, cedula];
+        const userExistResult = await pool.query(userExistQuery, userExistValues);
+
+        if (userExistResult.rowCount > 0) {
+            return res.status(400).json({ error: 'El email ya esta registrado' });
         }
 
-        return res.status(200).json(product.rows[0]);
+        const insertUserQuery = 'INSERT INTO tb_usuarios2 (cedula, nombres, apellidos, telefono, email, password,tipo) VALUES ($1, $2, $3, $4, $5, $6, $7)';
+        const insertUserValues = [cedula, nombres, apellidos, telefono, email, password, tipo];
+        await pool.query(insertUserQuery, insertUserValues);
+
+        return res.status(201).json({ message: 'Registrado exitosamente' });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 });
-
-app.delete('/eliminarcomentarios/:idcomentario', async(req, res) => {
+app.post('/obtenerTipoUsuario2', async(req, res) => {
     try {
-        const productId = req.params.idcomentario;
+        const { email } = req.body;
 
-        const deleteProductQuery = 'DELETE FROM tb_comentarios WHERE idcomentario = $1';
+        const obtenerTipoUsuarioQuery = 'SELECT tipo FROM tb_usuarios2 WHERE email = $1';
+        const obtenerTipoUsuarioValues = [email];
+        const tipoUsuarioResult = await pool.query(obtenerTipoUsuarioQuery, obtenerTipoUsuarioValues);
+
+        if (tipoUsuarioResult.rowCount > 0) {
+            const tipoUsuario = tipoUsuarioResult.rows[0].tipo;
+            return res.status(200).json({ tipo: tipoUsuario });
+        } else {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+app.post('/obtenerIdUsuario2', async(req, res) => {
+    try {
+        const { email } = req.body;
+        const obtenerIdUsuarioQuery = 'SELECT idusuarios FROM tb_usuarios2 WHERE email = $1';
+        const obtenerIdUsuarioValues = [email];
+
+        const IdUsuarioResult = await pool.query(obtenerIdUsuarioQuery, obtenerIdUsuarioValues);
+
+        if (IdUsuarioResult.rowCount > 0) {
+            const idusuarios = IdUsuarioResult.rows[0].idusuarios;
+            return res.status(200).json({ idusuarios: idusuarios });
+        } else {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Error en el servidor' });
+    }
+});
+app.listen(port, () => {
+    console.log(`Servidor en ejecución en http://localhost:${port}`);
+});
+app.delete('/eliminarusuario2/:idusuarios', async(req, res) => {
+    try {
+        const productId = req.params.idusuarios;
+
+        const deleteProductQuery = 'DELETE FROM tb_usuarios2 WHERE idusuarios = $1';
         await pool.query(deleteProductQuery, [productId]);
 
-        return res.status(200).json({ message: 'Producto eliminado exitosamente' });
+        return res.status(200).json({ message: 'Usuario eliminado exitosamente' });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 });
+
+
+
+
