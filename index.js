@@ -496,7 +496,7 @@ app.post('/registrarpropiedades', async(req, res) => {
 });
 app.get('/propiedades/:idpropiedad', async(req, res) => {
     try {
-        const productId = req.params.idusuarios;
+        const productId = req.params.idpropiedad;
         const getProductQuery = 'SELECT * FROM tb_propiedades WHERE idpropiedad = $1';
         const product = await pool.query(getProductQuery, [productId]);
 
