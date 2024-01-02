@@ -512,14 +512,14 @@ app.get('/propiedades/:idpropiedad', async(req, res) => {
 app.put('/editarpropiedad/:idpropiedad', async(req, res) => {
     try {
         const productId = req.params.idpropiedad;
-        const { tipo, titulo, mtotales, mcubiertos, habitaciones, cochera, banos, descripcion, direccion, telefono, imagenes, precio, provincia } = req.body;
+        const { tipo, titulo, mtotales, mcubiertos, habitaciones, cochera, banos, descripcion, direccion, telefono, precio, provincia } = req.body;
 
         const updateProductQuery = `UPDATE tb_propiedades 
         SET tipo = $1, titulo = $2, mtotales = $3, mcubiertos = $4, habitaciones = $5,
             cochera = $6, banos = $7, descripcion = $8, direccion = $9, telefono = $10,
-            imagenes = $11, precio = $12, provincia = $13
-        WHERE idpropiedad = $14`;
-        const updateProductValues = [tipo, titulo, mtotales, mcubiertos, habitaciones, cochera, banos, descripcion, direccion, telefono, imagenes, precio, provincia, idpropiedad];
+             precio = $11, provincia = $12
+        WHERE idpropiedad = $13`;
+        const updateProductValues = [tipo, titulo, mtotales, mcubiertos, habitaciones, cochera, banos, descripcion, direccion, telefono, precio, provincia, productId];
         await pool.query(updateProductQuery, updateProductValues);
 
         return res.status(200).json({ message: 'propiedad actualizada exitosamente' });
