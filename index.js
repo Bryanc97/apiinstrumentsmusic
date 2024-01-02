@@ -494,10 +494,10 @@ app.post('/registrarpropiedades', async(req, res) => {
         return res.status(500).json({ error: 'Error en el servidor' });
     }
 });
-app.get('/propiedades/:idusuarios', async(req, res) => {
+app.get('/propiedades/:idpropiedad', async(req, res) => {
     try {
         const productId = req.params.idusuarios;
-        const getProductQuery = 'SELECT * FROM tb_propiedades WHERE idusuarios = $1';
+        const getProductQuery = 'SELECT * FROM tb_propiedades WHERE idpropiedad = $1';
         const product = await pool.query(getProductQuery, [productId]);
 
         if (product.rowCount === 0) {
